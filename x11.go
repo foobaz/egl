@@ -12,6 +12,7 @@ package egl
 import "C"
 
 import (
+	"image"
 	"runtime"
 	"unsafe"
 )
@@ -52,7 +53,7 @@ func (display *Display) FlushX11() {
 }
 */
 
-func (surface *Surface) CopyBuffers() (*RGBAImage, error) {
+func (surface *Surface) CopyBuffers() (*image.NRGBA, error) {
 	width, widthErr := surface.Query(Width)
 	if widthErr != nil {
 		return nil, widthErr
@@ -70,15 +71,27 @@ func (surface *Surface) CopyBuffers() (*RGBAImage, error) {
 	xImage := C.XGetImage(xDisplay, C.Drawable(pixmap), 0, 0, C.uint(width), C.uint(height), 0, C.ZPixmap)
 //	xImage := C.XGetImage(xDisplay, pixmap, 0, 0, width, height, C.AllPlanes, C.XYPixmap)
 
-	image := new(RGBAImage)
-	length := 4 * xImage.width * xImage.height
-	image.pixels = make([]byte, length)
+	goImage := image.NewNRGBA(image.Rect(0, 0, int(xImage.width), int(xImage.height)))
+	for y := 0; y < int(xImage.height); y++ {
+		xOffset := y * int(xImage.bytes_per_line)
+		goOffset := y * goImage.Stride
+		C.bcopy(unsafe.Pointer(uintptr(unsafe.Pointer(xImage.data)) + uintptr(xOffset)), unsafe.Pointer(&goImage.Pix[goOffset]), C.size_t(xImage.width * 4))
+/*
+		for x := 0; x < int(xImage.width); x++ {
+			goImage.Pix[offset + x + 0] = *(xImage.data + y * xImage.bytes_per_line + x * 4 + 0)
+			goImage.Pix[offset + x + 1] = *(xImage.data + y * xImage.bytes_per_line + x * 4 + 1)
+			goImage.Pix[offset + x + 2] = *(xImage.data + y * xImage.bytes_per_line + x * 4 + 2)
+			goImage.Pix[offset + x + 3] = *(xImage.data + y * xImage.bytes_per_line + x * 4 + 3)
+		}
+*/
+	}
+/*
 	C.bcopy(unsafe.Pointer(xImage.data), unsafe.Pointer(&image.pixels[0]), C.size_t(length))
 	image.width = int(xImage.width)
 	image.height = int(xImage.height)
 	image.rowBytes = int(xImage.bytes_per_line)
-
+*/
 	C.XFreePixmap(xDisplay, pixmap)
 
-	return image, nil
+	return goImage, nil
 }

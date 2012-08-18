@@ -29,11 +29,6 @@ type Context struct {
 	display *Display
 }
 
-type RGBAImage struct {
-	pixels []byte
-	width, height, rowBytes int
-}
-
 type Config C.EGLConfig
 type Attrib C.EGLint
 type NativeDisplay C.EGLNativeDisplayType
@@ -192,6 +187,10 @@ func (surface *Surface) Query(name Attrib) (Attrib, error) {
 	return value, nil
 }
 
+func (surface *Surface) SwapBuffers() {
+	C.eglSwapBuffers(surface.display.eglDisplay, surface.eglSurface)
+}
+
 func BindAPI(api int) error {
 	success := C.eglBindAPI(C.EGLenum(api))
 	if success == C.EGL_FALSE {
@@ -232,7 +231,7 @@ func (display *Display) CreateContext(config Config, shareContext *Context, attr
 }
 
 func destroyContext(context *Context) {
-	fmt.Printf("destroying context == %v\n", context)
+//	fmt.Printf("destroying context == %v\n", context)
 	context.Destroy()
 }
 
@@ -244,9 +243,9 @@ func (context *Context) Destroy() error {
 	return nil
 }
 
-func (context *Context) MakeCurrent(dpy *Display, draw *Surface, read *Surface) error {
-	success := C.eglMakeCurrent(dpy.eglDisplay, draw.eglSurface, read.eglSurface, context.eglContext)
-	fmt.Printf("dpy == %v, draw == %v, read == %v, success == %d\n", dpy, draw, read, success)
+func (context *Context) MakeCurrent(draw *Surface, read *Surface) error {
+	success := C.eglMakeCurrent(context.display.eglDisplay, draw.eglSurface, read.eglSurface, context.eglContext)
+	fmt.Printf("draw == %v, read == %v, success == %d\n", draw, read, success)
 	if success == C.EGL_FALSE {
 		return getError()
 	}
