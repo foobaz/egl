@@ -42,7 +42,7 @@ func (display *Display) Initialize() error {
 
 	var major, minor C.EGLint
 	success := C.eglInitialize(display.eglDisplay, &major, &minor)
-fmt.Printf("display == %v, version == %d.%d, success == %d\n", display.eglDisplay, major, minor, success)
+//fmt.Printf("display == %v, version == %d.%d, success == %d\n", display.eglDisplay, major, minor, success)
 	if success == C.EGL_FALSE {
 		return getError()
 	}
@@ -162,13 +162,26 @@ func (display *Display) PrintConfigs(configs []Config) {
 		for _, config := range(configs) {
 			value, err := display.GetConfigAttrib(config, name)
 			if err != nil {
-				fmt.Printf("? ")
+				fmt.Print("? ")
 				continue
 			}
 			fmt.Printf("%d ", value)
 		}
 		fmt.Printf("\n")
 	}
+}
+
+func (display *Display) PrintConfig(config Config) {
+	for _, name := range(AllConfigAttribNames) {
+		fmt.Printf("%v: ", name)
+		value, err := display.GetConfigAttrib(config, name)
+		if err != nil {
+			fmt.Print("?\n")
+			continue
+		}
+		fmt.Printf("%d\n", value)
+	}
+	fmt.Printf("\n")
 }
 
 func (display *Display) CreatePbufferSurface(config Config, attribList []Attrib) (*Surface, error) {

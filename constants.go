@@ -42,8 +42,8 @@ const (
 	TransparentGreenValue = C.EGL_TRANSPARENT_GREEN_VALUE
 	TransparentRedValue = C.EGL_TRANSPARENT_RED_VALUE
 	None = C.EGL_NONE // Attrib list terminator
-	BindToTextureRgb = C.EGL_BIND_TO_TEXTURE_RGB
-	BindToTextureRgba = C.EGL_BIND_TO_TEXTURE_RGBA
+	BindToTextureRGB = C.EGL_BIND_TO_TEXTURE_RGB
+	BindToTextureRGBA = C.EGL_BIND_TO_TEXTURE_RGBA
 	MinSwapInterval = C.EGL_MIN_SWAP_INTERVAL
 	MaxSwapInterval = C.EGL_MAX_SWAP_INTERVAL
 	LuminanceSize = C.EGL_LUMINANCE_SIZE
@@ -79,8 +79,8 @@ var AllConfigAttribNames [34]Attrib = [34]Attrib{
 	TransparentGreenValue,
 	TransparentRedValue,
 	None,
-	BindToTextureRgb,
-	BindToTextureRgba,
+	BindToTextureRGB,
+	BindToTextureRGBA,
 	MinSwapInterval,
 	MaxSwapInterval,
 	LuminanceSize,
@@ -91,6 +91,15 @@ var AllConfigAttribNames [34]Attrib = [34]Attrib{
 	Conformant,
 }
 
+// Config attribute values
+const (
+	SlowConfig = C.EGL_SLOW_CONFIG
+	NonConformantConfig = C.EGL_NON_CONFORMANT_CONFIG
+	TransparentRGB = C.EGL_TRANSPARENT_RGB
+	RGBBuffer = C.EGL_RGB_BUFFER
+	LuminanceBuffer = C.EGL_LUMINANCE_BUFFER
+)
+
 // Config attribute mask bits
 const (
 	PbufferBit = C.EGL_PBUFFER_BIT
@@ -100,10 +109,10 @@ const (
 	VgAlphaFormatPreBit = C.EGL_VG_ALPHA_FORMAT_PRE_BIT
 	MultisampleResolveBoxBit = C.EGL_MULTISAMPLE_RESOLVE_BOX_BIT
 	SwapBehaviorPreservedBit = C.EGL_SWAP_BEHAVIOR_PRESERVED_BIT
-	OpenglEsBit = C.EGL_OPENGL_ES_BIT
+	OpenGLESBit = C.EGL_OPENGL_ES_BIT
 	OpenvgBit = C.EGL_OPENVG_BIT
-	OpenglEs2Bit = C.EGL_OPENGL_ES2_BIT
-	OpenglBit = C.EGL_OPENGL_BIT
+	OpenGLES2Bit = C.EGL_OPENGL_ES2_BIT
+	OpenGLBit = C.EGL_OPENGL_BIT
 )
 
 // QueryString targets
@@ -133,6 +142,12 @@ const (
 	MultisampleResolve = C.EGL_MULTISAMPLE_RESOLVE
 )
 
+// RenderBuffer values / BindTexImage / ReleaseTexImage buffer targets
+const (
+	BackBuffer = C.EGL_BACK_BUFFER
+	SingleBuffer = C.EGL_SINGLE_BUFFER
+)
+
 // CreateContext attributes
 const (
 	ContextClientVersion = C.EGL_CONTEXT_CLIENT_VERSION
@@ -140,9 +155,9 @@ const (
 
 // BindAPI/QueryAPI targets
 const (
-	OpenglEsAPI = C.EGL_OPENGL_ES_API
+	OpenGLESAPI = C.EGL_OPENGL_ES_API
 	OpenvgAPI = C.EGL_OPENVG_API
-	OpenglAPI = C.EGL_OPENGL_API
+	OpenGLAPI = C.EGL_OPENGL_API
 )
 
 func (name Attrib) String() string {
@@ -160,9 +175,9 @@ func (name Attrib) String() string {
 			return "bits of Luminance in the color buffer"
 		case AlphaSize:
 			return "bits of Alpha in the color buffer"
-		case BindToTextureRgb:
+		case BindToTextureRGB:
 			return "True if bindable to RGB textures"
-		case BindToTextureRgba:
+		case BindToTextureRGBA:
 			return "True if bindable to RGBA textures"
 		case ColorBufferType:
 			return "color buffer type"
