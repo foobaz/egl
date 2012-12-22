@@ -1,7 +1,8 @@
 package egl
 
 /*
-#cgo LDFLAGS: -lEGL -lX11
+#cgo pkg-config: egl,x11
+//#cgo LDFLAGS: -lEGL -lX11
 
 #include <EGL/egl.h>
 #include <stdlib.h>
