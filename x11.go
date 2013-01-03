@@ -1,13 +1,10 @@
 package egl
 
 /*
-#cgo pkg-config: egl,x11
-//#cgo LDFLAGS: -lEGL -lX11
+#cgo pkg-config: egl x11
 
 #include <EGL/egl.h>
 #include <stdlib.h>
-#include <strings.h>
-#include <X11/Xlib.h>
 */
 import "C"
 
