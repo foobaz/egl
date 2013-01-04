@@ -88,9 +88,10 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 		return nil, fmt.Errorf("XScreenCount returned %d", count)
 	}
 
+	baseName := name + "."
 	var lastError error
 	for i := 0; i < count; i++ {
-		displayName := name + strconv.Itoa(i)
+		displayName := baseName + strconv.Itoa(i)
 		display, displayErr := GetXDisplay(displayName)
 		if displayErr != nil {
 			lastError = displayErr
