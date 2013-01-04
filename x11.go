@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"os"
 	"runtime"
 	"strconv"
 	"unsafe"
@@ -113,6 +114,7 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 			continue
 		}
 
+		//fmt.Printf("found X display named %v\n", displayName)
 		allDisplays = append(allDisplays, display)
 	}
 	if allDisplays == nil {
@@ -120,6 +122,59 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 	}
 
 	return allDisplays, nil
+}
+
+func GetAllDisplaysOnAllXServers() ([]*Display, error) {
+	servers, serversErr := allXServers()
+	if serversErr != nil {
+		// sane default
+		servers = []string{":0"}
+	}
+
+	var allDisplays []*Display
+	var lastError error
+	for _, oneServer := range servers {
+		theseDisplays, displaysErr := GetAllDisplaysOnXServer(oneServer)
+		if displaysErr != nil {
+			lastError = displaysErr
+			continue
+		}
+
+		allDisplays = append(allDisplays, theseDisplays...)
+	}
+	if allDisplays == nil {
+		return nil, lastError
+	}
+
+	return allDisplays, nil
+}
+
+func allXServers() ([]string, error) {
+	xDir, openErr := os.Open("/tmp/.X11-unix")
+	if openErr != nil {
+		return nil, openErr
+	}
+
+	const maxFileCount = 1000
+	files, readErr := xDir.Readdir(maxFileCount)
+	if readErr != nil {
+		return nil, readErr
+	}
+
+	var allNames []string
+	for _, oneFile := range files {
+		name := oneFile.Name()
+		if len(name) < 2 {
+			continue
+		}
+
+		allNames = append(allNames, ":" + name[1:])
+	}
+	if allNames == nil {
+		return nil, errors.New("No X sockets found in /tmp/.X11-unix")
+	}
+
+	return allNames, nil
 }
 
 func (display *Display) Terminate() error {
