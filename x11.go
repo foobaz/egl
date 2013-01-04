@@ -1,7 +1,7 @@
 package egl
 
 /*
-#cgo pkg-config: egl
+#cgo pkg-config: egl x11
 
 #include <EGL/egl.h>
 #include <stdlib.h>
