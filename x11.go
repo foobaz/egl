@@ -59,10 +59,17 @@ func getXDisplayWithCString(displayName *C.char) (*Display, error) {
 
 	display := new(Display)
 	runtime.SetFinalizer(display, terminateDisplay)
+	// TODO: figure out why closing display crashes
+	//runtime.SetFinalizer(display, terminateXDisplay)
 	display.xDisplay = xDisplay
 	display.eglDisplay = eglDisplay
 
 	return display, nil
+}
+
+func terminateXDisplay(display *Display) {
+	terminateDisplay(display)
+	C.XCloseDisplay(display.xDisplay)
 }
 
 func GetMainXDisplay() (*Display, error) {
@@ -89,6 +96,7 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 	}
 
 	count := int(C.XScreenCount(xDisplay))
+	C.XCloseDisplay(xDisplay)
 	if count <= 0 {
 		return nil, fmt.Errorf("XScreenCount returned %d", count)
 	}
