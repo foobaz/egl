@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"image"
 	"runtime"
+	"strconv"
 	"unsafe"
 )
 
@@ -42,7 +43,7 @@ func init() {
 	C.XInitThreads()
 }
 
-func getX11DisplayWithCString(displayName *C.char) (*Display, error) {
+func getXDisplayWithCString(displayName *C.char) (*Display, error) {
 	xDisplay := C.XOpenDisplay(displayName)
 	if xDisplay == nil {
 		return nil, errors.New("XOpenDisplay returned nil")
@@ -61,16 +62,48 @@ func getX11DisplayWithCString(displayName *C.char) (*Display, error) {
 	return display, nil
 }
 
-func GetX11Display() (*Display, error) {
-	return getX11DisplayWithCString(nil)
+func GetMainXDisplay() (*Display, error) {
+	return getXDisplayWithCString(nil)
 }
 
-func GetDisplayWithX11Name(name string) (*Display, error) {
+func GetXDisplay(name string) (*Display, error) {
 	displayName := C.CString(name)
-	display, displayErr := getX11DisplayWithCString(displayName)
+	display, displayErr := getXDisplayWithCString(displayName)
 	C.free(unsafe.Pointer(displayName))
 
 	return display, displayErr
+}
+
+func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
+	serverName := C.CString(name)
+	xDisplay := C.XOpenDisplay(serverName)
+	C.free(unsafe.Pointer(serverName))
+	if xDisplay == nil {
+		return nil, errors.New("XOpenDisplay returned nil")
+	}
+
+	var allDisplays []*Display
+	count := int(C.XScreenCount(xDisplay))
+	if count <= 0 {
+		return nil, fmt.Errorf("XScreenCount returned %d", count)
+	}
+
+	var lastError error
+	for i := 0; i < count; i++ {
+		displayName := name + strconv.Itoa(i)
+		display, displayErr := GetXDisplay(displayName)
+		if displayErr != nil {
+			lastError = displayErr
+			continue
+		}
+
+		allDisplays = append(allDisplays, display)
+	}
+	if allDisplays == nil {
+		return nil, lastError
+	}
+
+	return allDisplays, nil
 }
 
 func (display *Display) Terminate() error {
