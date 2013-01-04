@@ -46,7 +46,10 @@ func init() {
 func getXDisplayWithCString(displayName *C.char) (*Display, error) {
 	xDisplay := C.XOpenDisplay(displayName)
 	if xDisplay == nil {
-		return nil, errors.New("XOpenDisplay returned nil")
+		return nil, fmt.Errorf(
+			"XOpenDisplay returned nil, display %v may be in use by another user",
+			C.GoString(displayName),
+		)
 	}
 
 	eglDisplay := C.eglGetDisplay(C.EGLNativeDisplayType(xDisplay))
@@ -79,10 +82,12 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 	xDisplay := C.XOpenDisplay(serverName)
 	C.free(unsafe.Pointer(serverName))
 	if xDisplay == nil {
-		return nil, errors.New("XOpenDisplay returned nil")
+		return nil, fmt.Errorf(
+			"XOpenDisplay returned nil, screen %v may be in use by another user",
+			name,
+		)
 	}
 
-	var allDisplays []*Display
 	count := int(C.XScreenCount(xDisplay))
 	if count <= 0 {
 		return nil, fmt.Errorf("XScreenCount returned %d", count)
@@ -90,10 +95,12 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 
 	baseName := name + "."
 	var lastError error
+	var allDisplays []*Display
 	for i := 0; i < count; i++ {
 		displayName := baseName + strconv.Itoa(i)
 		display, displayErr := GetXDisplay(displayName)
 		if displayErr != nil {
+			fmt.Printf("failed on display %v with error %v\n", displayName, displayErr)
 			lastError = displayErr
 			continue
 		}
