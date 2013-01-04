@@ -1,7 +1,7 @@
 package egl
 
 /*
-#cgo pkg-config: egl
+#cgo LDFLAGS: -lEGL
 
 #include <EGL/egl.h>
 */
