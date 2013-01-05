@@ -157,6 +157,7 @@ func allXServers() ([]string, error) {
 
 	const maxFileCount = 1000
 	files, readErr := xDir.Readdir(maxFileCount)
+	xDir.Close()
 	if readErr != nil {
 		return nil, readErr
 	}
