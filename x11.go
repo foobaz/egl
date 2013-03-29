@@ -44,7 +44,7 @@ func init() {
 	C.XInitThreads()
 }
 
-func getXDisplayWithCString(displayName *C.char) (*Display, error) {
+func openXDisplayWithCString(displayName *C.char) (*Display, error) {
 	xDisplay := C.XOpenDisplay(displayName)
 	if xDisplay == nil {
 		return nil, fmt.Errorf(
@@ -59,33 +59,25 @@ func getXDisplayWithCString(displayName *C.char) (*Display, error) {
 	}
 
 	display := new(Display)
-	runtime.SetFinalizer(display, terminateDisplay)
-	// TODO: figure out why closing display crashes
-	//runtime.SetFinalizer(display, terminateXDisplay)
 	display.xDisplay = xDisplay
 	display.eglDisplay = eglDisplay
 
 	return display, nil
 }
 
-func terminateXDisplay(display *Display) {
-	terminateDisplay(display)
-	C.XCloseDisplay(display.xDisplay)
+func OpenMainXDisplay() (*Display, error) {
+	return openXDisplayWithCString(nil)
 }
 
-func GetMainXDisplay() (*Display, error) {
-	return getXDisplayWithCString(nil)
-}
-
-func GetXDisplay(name string) (*Display, error) {
+func OpenXDisplay(name string) (*Display, error) {
 	displayName := C.CString(name)
-	display, displayErr := getXDisplayWithCString(displayName)
+	display, displayErr := openXDisplayWithCString(displayName)
 	C.free(unsafe.Pointer(displayName))
 
 	return display, displayErr
 }
 
-func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
+func OpenAllDisplaysOnXServer(name string) ([]*Display, error) {
 	serverName := C.CString(name)
 	xDisplay := C.XOpenDisplay(serverName)
 	C.free(unsafe.Pointer(serverName))
@@ -107,7 +99,7 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 	var allDisplays []*Display
 	for i := 0; i < count; i++ {
 		displayName := baseName + strconv.Itoa(i)
-		display, displayErr := GetXDisplay(displayName)
+		display, displayErr := OpenXDisplay(displayName)
 		if displayErr != nil {
 			fmt.Printf("failed on display %v with error %v\n", displayName, displayErr)
 			lastError = displayErr
@@ -124,7 +116,7 @@ func GetAllDisplaysOnXServer(name string) ([]*Display, error) {
 	return allDisplays, nil
 }
 
-func GetAllDisplaysOnAllXServers() ([]*Display, error) {
+func OpenAllDisplaysOnAllXServers() ([]*Display, error) {
 	servers, serversErr := allXServers()
 	if serversErr != nil {
 		// sane default
@@ -134,7 +126,7 @@ func GetAllDisplaysOnAllXServers() ([]*Display, error) {
 	var allDisplays []*Display
 	var lastError error
 	for _, oneServer := range servers {
-		theseDisplays, displaysErr := GetAllDisplaysOnXServer(oneServer)
+		theseDisplays, displaysErr := OpenAllDisplaysOnXServer(oneServer)
 		if displaysErr != nil {
 			lastError = displaysErr
 			continue
@@ -178,7 +170,7 @@ func allXServers() ([]string, error) {
 	return allNames, nil
 }
 
-func (display *Display) Terminate() error {
+func (display *Display) Close() error {
 	if display.xDisplay != nil {
 		C.XCloseDisplay(display.xDisplay)
 	}

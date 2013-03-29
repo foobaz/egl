@@ -22,17 +22,11 @@ import (
 var defaultDisplay C.EGLNativeDisplayType = C.kDefaultDisplay
 var noDisplay C.EGLDisplay = C.kNoDisplay
 
-func GetDisplay() (*Display, error) {
+func OpenDisplay() (*Display, error) {
 	display := new(Display)
-	runtime.SetFinalizer(display, terminateDisplay)
 
 	display.eglDisplay = C.eglGetDisplay(defaultDisplay)
 	return display, nil
-}
-
-func terminateDisplay(display *Display) {
-//	fmt.Printf("terminating display == %v\n", display)
-	display.Terminate()
 }
 
 func (display *Display) Initialize() error {
@@ -219,7 +213,7 @@ func (display *Display) CreateContext(config Config, shareContext *Context, attr
 	}
 
 	context := new(Context)
-	runtime.SetFinalizer(context, destroyContext)
+	//runtime.SetFinalizer(context, destroyContext)
 	context.eglContext = eglContext
 	context.Display = display
 	return context, nil
