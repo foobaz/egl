@@ -4,6 +4,7 @@ package egl
 #cgo pkg-config: egl
 
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 */
 import "C"
 
@@ -156,8 +157,25 @@ const (
 // BindAPI/QueryAPI targets
 const (
 	OpenGLESAPI = C.EGL_OPENGL_ES_API
-	OpenvgAPI = C.EGL_OPENVG_API
+	OpenVGAPI = C.EGL_OPENVG_API
 	OpenGLAPI = C.EGL_OPENGL_API
+)
+
+// EGL_KHR_create_context extension
+const (
+	ContextMajorVersion = C.EGL_CONTEXT_MAJOR_VERSION_KHR
+	ContextMinorVersion = C.EGL_CONTEXT_MINOR_VERSION_KHR
+	ContextFlags = C.EGL_CONTEXT_FLAGS_KHR
+	ContextOpenGLProfileMask = C.EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR
+	ContextOpenGLResetNotificationStrategy = C.EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR
+	NoResetNotification = C.EGL_NO_RESET_NOTIFICATION_KHR
+	LoseContextOnReset = C.EGL_LOSE_CONTEXT_ON_RESET_KHR
+	ContextOpenGLDebugBit = C.EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR
+	ContextOpenGLForwardCompatibleBit = C.EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR
+	ContextOpenGLRobustAccessBit = C.EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR
+	ContextOpenGLCoreProfileBit = C.EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR
+	ContextOpenGLCompatibilityProfileBit = C.EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR
+	OpenGLES3Bit = C.EGL_OPENGL_ES3_BIT_KHR
 )
 
 func (name Attrib) String() string {
