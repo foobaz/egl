@@ -161,6 +161,7 @@ const (
 	OpenGLAPI = C.EGL_OPENGL_API
 )
 
+/*
 // EGL_KHR_create_context extension
 const (
 	ContextMajorVersion = C.EGL_CONTEXT_MAJOR_VERSION_KHR
@@ -177,6 +178,7 @@ const (
 	ContextOpenGLCompatibilityProfileBit = C.EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR
 	OpenGLES3Bit = C.EGL_OPENGL_ES3_BIT_KHR
 )
+*/
 
 func (name Attrib) String() string {
 	switch name {
