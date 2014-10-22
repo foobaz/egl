@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"image"
 	"os"
-	"runtime"
+	//"runtime"
 	"strconv"
 	"unsafe"
 )
@@ -216,7 +216,7 @@ func (display *Display) CreatePixmapSurface(config Config, attribList []Attrib, 
 	}
 
 	surface := new(Surface)
-	runtime.SetFinalizer(surface, destroySurface)
+	//runtime.SetFinalizer(surface, destroySurface)
 	surface.Display = display
 	surface.eglSurface = eglSurface
 	surface.xPixmap = pixmap

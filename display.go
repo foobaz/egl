@@ -16,7 +16,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"runtime"
+	//"runtime"
 )
 
 var defaultDisplay C.EGLNativeDisplayType = C.kDefaultDisplay
@@ -190,7 +190,7 @@ func (display *Display) CreatePbufferSurface(config Config, attribList []Attrib)
 	}
 
 	surface := new(Surface)
-	runtime.SetFinalizer(surface, destroySurface)
+	//runtime.SetFinalizer(surface, destroySurface)
 	surface.Display = display
 	surface.eglSurface = eglSurface
 	return surface, nil
